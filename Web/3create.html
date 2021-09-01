@@ -1,0 +1,96 @@
+<html>
+<head>
+<title>Criczone
+</title>
+</head>
+<body>
+
+<?php
+require('db.php');
+// If form submitted, insert values into the database.
+if (isset($_REQUEST['username'])){
+$f= $_POST['fn1'];
+$l= $_POST["ln1"];
+$e= $_POST["e1"];
+$m= $_POST["m1"];
+$u= $_POST["u1"];
+$p= $_POST["p1"];
+$r= $_POST["p2"];
+
+if (empty($u)) { array_push($errors, "Username is required"); }
+  if (empty($e)) { array_push($errors, "Email is required"); }
+  if (empty($p)) { array_push($errors, "Password is required"); }
+  if ($p != $r) {
+	array_push($errors, "The two passwords do not match");
+  }
+  
+  $user_check_query = "SELECT * FROM cric WHERE Username='$u' OR Email Address ='$e' LIMIT 1";
+  $result = mysqli_query($db, $user_check_query);
+  $user = mysqli_fetch_assoc($result);
+  
+  if ($user) { // if user exists
+    if ($user['Username'] === $u) {
+      array_push($errors, "Username already exists");
+    }
+
+    if ($user['Email Address'] === $e) {
+      array_push($errors, "Email already exists");
+    }
+  }
+
+  // Finally, register user if there are no errors in the form
+  if (count($errors) == 0) {
+  	$password = md5($p);//encrypt the password before saving in the database
+
+  	$query = "INSERT INTO cric 
+  			  VALUES('$f', '$l', '$u','$p','$e','$m')";
+  	mysqli_query($db, $query);
+  	$_SESSION['username'] = $u;
+  	$_SESSION['success'] = "You are now logged in";
+  	header('location: 2shop.php');
+  }
+  else
+  {
+	echo '<script>alert($errors)</script>';
+  }
+} else {
+?>
+<form action="create3.php" method="post" style="margin-left:540px;">
+<font size="5" face="Tahoma">
+Criczone
+<br>
+<br>
+<br>
+Create Account
+</font><br><br><br>
+<font size="3" face="Tahoma">
+Your First Name<br><br>
+<input type ="text" size="30" name="fn1" required><br><br>
+Your Last Name<br><br>
+<input type ="text" size="30" name="ln1" required><br><br>
+Mobile No.<br><br>
+<input type ="text" size="13" name="m1" placeholder="At least 10 digits" required><br><br>
+Enter a valid username
+<input type ="text" size="15" name="u1" required><br><br>
+Email
+<input type ="text" size="30" name="e1" required><br><br>
+Password<br><br>
+<input type ="password" size="20" name="p1" placeholder="At least 8 characters" required> <br><br>
+Re-enter Password
+<input type ="password" size="20" name="p2" placeholder="At least 8 characters" required> <br>
+<font size="2" face="Tahoma" >
+<br><br>
+</font>
+We will send you a text to verify your phone.<br>
+Message and Data rates may apply.
+<br><br>
+<input type="submit" value="Continue" style="background-color:#ADD8E6;width:115px;height:22px" /><br><br>
+</form>
+
+Already have an account? 
+<a href="login1.php" >Sign in</a>
+
+<?php } ?>
+
+</body>
+</html>
